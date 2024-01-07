@@ -1,0 +1,9 @@
+$primary: darken(#428bca, 20%);
+
+@import "~bootstrap/scss/bootstrap";
+
+$light-blue: lightblue;
+
+body {
+  background-color: $light-blue;
+}

@@ -1,7 +1,61 @@
-<body>
-<ul>
-    {% for event in events %}
-      <li>  {{ event }} </li>
-    {% endfor %} 
-</ul>
-</body> 
+{% extends "base.html.twig" %}
+
+{% block title %}
+	Événements -
+	{{ parent () }}
+{% endblock %}
+
+{% block body %}
+
+	{% if is_granted('ROLE_ADMIN') %}
+		<a href="{{ path('event_create') }}" class="btn btn-primary">Créer un événement</a>
+	{% endif %}
+
+	<div class="row">
+		{% for event in events %}
+			<div class="col-lg-3 mt-4">
+				<div class="card shadow">
+					{% if event.poster %}
+						<img src="{{ asset('images/events/' ~ event.poster) }}" alt="{{ event.name }}" class="card-img-top">
+					{% endif %}
+					<div class="card-body">
+						<a href="{{ path("event_show", { id: event.id }) }}">{{ event.name }}</a>
+						<p>{{ "Du " ~ event.startAt.format('d/m/Y à H\\hi') ~ " au " ~ event.endAt.format('d/m/Y à H\\hi') }}</p>
+
+						{# {{ dump(event.startAt) }}
+																																																																																																																																																																																																																																																																																																																																																																																																																																																																								{{ dump(date()) }} #}
+						{# {{ dump(event.startAt <= date() and event.endAt >= date()) }} #}
+
+						{% if event.startAt <= date() and event.endAt >= date() %}
+							<span class="badge bg-warning text-dark">En cours</span>
+						{% elseif event.endAt < date() %}
+							<span class="badge bg-danger">Passé</span>
+						{% else %}
+							<span class="badge bg-success">Futur</span>
+						{% endif %}
+
+						<span>{{ event.price | format_currency('EUR', locale="fr")}}</span>
+						{% if event.place %}
+							<span>{{ "Au " ~ event.place.city }}</span>
+						{% endif %}
+
+						{% if event.user %}
+							<p>{{ "Créer par " ~ event.user.email }}</p>
+						{% endif %}
+
+						<div class="mt-4">
+							<a class="btn btn-primary" href="{{ path("event_show", { id: event.id }) }}">Voir</a>
+							{% if is_granted('ROLE_ADMIN') %}
+								<a href="{{ path("event_edit", { id: event.id }) }}" class="btn btn-success">Mdofifier</a>
+								<form class="d-inline" action="{{ path("event_delete", { id: event.id }) }}" onsubmit="return confirm('Êtes vous sûr de cette supression ?')">
+									<input type="hidden" name="token" value="{{ csrf_token('delete-' ~ event.id) }}">
+									<button class="btn btn-danger">Supprimer</button>
+								</form>
+							{% endif %}
+						</div>
+					</div>
+				</div>
+			</div>
+		{% endfor %}
+	</div>
+{% endblock %}
